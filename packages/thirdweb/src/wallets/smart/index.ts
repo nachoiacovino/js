@@ -114,6 +114,7 @@ export async function connectSmartWallet(
         entrypointAddress,
       };
     }
+    console.log("entrypointAddress", entrypointAddress);
   }
 
   const factoryAddress =
