@@ -14,7 +14,7 @@ import { toSerializableTransaction } from "../../../transaction/actions/to-seria
 import type { PreparedTransaction } from "../../../transaction/prepare-transaction.js";
 import type { TransactionReceipt } from "../../../transaction/types.js";
 import { isContractDeployed } from "../../../utils/bytecode/is-contract-deployed.js";
-import type { Hex } from "../../../utils/encoding/hex.js";
+import { type Hex, toHex } from "../../../utils/encoding/hex.js";
 import { hexToBytes } from "../../../utils/encoding/to-bytes.js";
 import { isThirdwebUrl } from "../../../utils/fetch.js";
 import { resolvePromisedValue } from "../../../utils/promise/resolve-promised-value.js";
@@ -639,7 +639,7 @@ async function getAccountNonce(options: {
   if (getNonceOverride) {
     return getNonceOverride(accountContract);
   }
-  return getNonce({
+  const nonce = await getNonce({
     contract: getContract({
       address: entrypointAddress || ENTRYPOINT_ADDRESS_v0_6,
       chain,
@@ -648,6 +648,11 @@ async function getAccountNonce(options: {
     key: generateRandomUint192(),
     sender: accountContract.address,
   });
+  // FIXME - only for modular accounts to pass validator in
+  const withValidator = `0x${"0".repeat(40)}${toHex(nonce).slice(42)}`;
+  console.log("withValidator", withValidator);
+  console.log("withValidator", withValidator.length);
+  return withValidator;
 }
 
 /**
@@ -657,6 +662,7 @@ async function getAccountNonce(options: {
  * @example
  * ```ts
  * import { createAndSignUserOp } from "thirdweb/wallets/smart";
+import { keccak256 } from "../../../utils/hashing/keccak256.js";
  *
  * const userOp = await createAndSignUserOp({
  *  client,
