@@ -49,7 +49,7 @@ export const ContractParamsFieldset: React.FC<ContractParamsFieldsetProps> = ({
       // Clear values accordingly when toggling between input types
       if (updated[index]) {
         form.setValue(
-          `constructorParams.${deployParams[index]?.name || "*"}.ref.refType`,
+          `constructorParams.${deployParams[index]?.name || "*"}.dynamicValue.type`,
           deployParams[index]?.type,
         );
 
@@ -62,11 +62,11 @@ export const ContractParamsFieldset: React.FC<ContractParamsFieldsetProps> = ({
         );
       } else {
         form.setValue(
-          `constructorParams.${deployParams[index]?.name || "*"}.ref.refType`,
+          `constructorParams.${deployParams[index]?.name || "*"}.dynamicValue.type`,
           "",
         );
         form.setValue(
-          `constructorParams.${deployParams[index]?.name || "*"}.ref`,
+          `constructorParams.${deployParams[index]?.name || "*"}.dynamicValue`,
           "",
           {
             shouldDirty: true,
@@ -180,12 +180,14 @@ export const ContractParamsFieldset: React.FC<ContractParamsFieldsetProps> = ({
                         )}
 
                         {(param.type === "address" ||
-                          param.type === "address[]") && (
+                          param.type === "address[]" ||
+                          param.type === "bytes" ||
+                          param.type === "bytes[]") && (
                           <Checkbox
                             isChecked={isCustomInputEnabled[idx]}
                             onChange={() => handleToggleCustomInput(idx)}
                           >
-                            Use Custom Input
+                            Use Dynamic Input
                           </Checkbox>
                         )}
                       </Flex>

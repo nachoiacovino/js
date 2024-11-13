@@ -29,16 +29,16 @@ export const RefContractImplInput: React.FC<RefContractImplInputProps> = ({
 
   const publishedContractsQuery = usePublishedContractsQuery(
     form.watch(
-      `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.publisherAddress`,
+      `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.publisherAddress`,
     ),
   );
 
   const allVersions = useAllVersions(
     form.watch(
-      `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.publisherAddress`,
+      `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.publisherAddress`,
     ),
     form.watch(
-      `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.contractId`,
+      `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.contractId`,
     ),
   );
 
@@ -55,7 +55,7 @@ export const RefContractImplInput: React.FC<RefContractImplInputProps> = ({
           gap={1}
           isInvalid={
             !!form.getFieldState(
-              `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.publisherAddress`,
+              `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.publisherAddress`,
               form.formState,
             ).error
           }
@@ -64,7 +64,7 @@ export const RefContractImplInput: React.FC<RefContractImplInputProps> = ({
           <Input
             placeholder="Address or ENS"
             {...form.register(
-              `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.publisherAddress`,
+              `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.publisherAddress`,
             )}
           />
         </FormControl>
@@ -80,7 +80,7 @@ export const RefContractImplInput: React.FC<RefContractImplInputProps> = ({
             <Select
               isDisabled={(publishedContractsQuery?.data || []).length === 0}
               {...form.register(
-                `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.contractId`,
+                `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.contractId`,
               )}
               placeholder={
                 publishedContractsQuery.isFetched &&
@@ -108,7 +108,7 @@ export const RefContractImplInput: React.FC<RefContractImplInputProps> = ({
               w="full"
               isDisabled={!allVersions.data}
               {...form.register(
-                `implConstructorParams.${param.name ? param.name : "*"}.ref.contracts.${index}.version`,
+                `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.version`,
               )}
               borderRadius="lg"
             >

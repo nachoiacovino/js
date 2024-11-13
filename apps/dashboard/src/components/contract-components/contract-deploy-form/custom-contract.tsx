@@ -71,7 +71,7 @@ type CustomContractDeploymentFormData = {
   deployDeterministic: boolean;
   saltForCreate2: string;
   signerAsSalt: boolean;
-  deployParams: Record<string, string | ContractRef>;
+  deployParams: Record<string, string | DynamicValue>;
   moduleData: Record<string, Record<string, string>>;
   contractMetadata?: {
     name: string;
@@ -82,12 +82,15 @@ type CustomContractDeploymentFormData = {
   recipients?: Recipient[];
 };
 
-interface ContractRef {
-  ref: {
-    publisherAddress: string;
-    version: string;
-    contractId: string;
-  }[];
+interface DynamicValue {
+  dynamicValue: {
+    type: string;
+    refContracts?: {
+      publisherAddress: string;
+      version: string;
+      contractId: string;
+    }[];
+  };
 }
 
 export type CustomContractDeploymentForm =
@@ -219,14 +222,15 @@ export const CustomContractForm: React.FC<CustomContractFormProps> = ({
           }
 
           // specify refs if present
-          const ref = metadata?.constructorParams?.[param.name]?.ref;
-          if (ref && acc[param.name] === "") {
-            acc[param.name] = { ref };
+          const dynamicValue =
+            metadata?.constructorParams?.[param.name]?.dynamicValue;
+          if (dynamicValue && acc[param.name] === "") {
+            acc[param.name] = { dynamicValue };
           }
 
           return acc;
         },
-        {} as Record<string, string | ContractRef>,
+        {} as Record<string, string | DynamicValue>,
       ),
     }),
     [deployParams, metadata?.constructorParams, activeAccount, walletChain?.id],
@@ -374,7 +378,7 @@ export const CustomContractForm: React.FC<CustomContractFormProps> = ({
           if (
             shouldHide(paramKey) ||
             !extraMetadataParam?.hidden ||
-            extraMetadataParam?.ref
+            extraMetadataParam?.dynamicValue
           ) {
             return null;
           }
@@ -776,7 +780,7 @@ export const CustomContractForm: React.FC<CustomContractFormProps> = ({
                   if (
                     shouldHide(paramKey) ||
                     extraMetadataParam?.hidden ||
-                    extraMetadataParam?.ref
+                    extraMetadataParam?.dynamicValue
                   ) {
                     return null;
                   }

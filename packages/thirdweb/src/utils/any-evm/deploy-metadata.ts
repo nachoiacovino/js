@@ -159,13 +159,26 @@ type ParsedCompilerMetadata = {
   zk_version?: string;
 };
 
-type Ref = {
-  refType: "address" | "address[]";
-  contracts: Array<{
+type DynamicParams = {
+  type: "address" | "address[]" | "bytes" | "bytes[]";
+
+  // use for address types
+  refContracts?: Array<{
     contractId: string;
     publisherAddress: string;
     version: string;
   }>;
+
+  // use for bytes
+  decodedBytes?: Array<
+    Record<
+      string,
+      {
+        defaultValue?: string;
+        dynamicValue?: DynamicParams; // can have address type which may need ref
+      }
+    >
+  >;
 };
 
 export type CompilerMetadata = Prettify<
@@ -229,14 +242,14 @@ export type ExtendedMetadata = {
       description?: string;
       defaultValue?: string;
       hidden?: boolean;
-      ref?: Ref;
+      dynamicValue?: DynamicParams;
     }
   >;
   implConstructorParams?: Record<
     string,
     {
       defaultValue?: string;
-      ref?: Ref;
+      dynamicValue?: DynamicParams;
     }
   >;
   compositeAbi?: Abi;

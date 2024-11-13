@@ -15,7 +15,7 @@ export const RefInputFieldset: React.FC<RefInputFieldsetProps> = ({
   const form = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
-    name: `constructorParams.${param.name ? param.name : "*"}.ref.contracts`,
+    name: `constructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts`,
     control: form.control,
   });
 

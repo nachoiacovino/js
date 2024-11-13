@@ -129,9 +129,9 @@ export type DeployContractfromDeployMetadataOptions = {
   salt?: string;
 };
 
-interface Ref {
-  refType: "address" | "address[]";
-  contracts: {
+interface DynamicParams {
+  type: "address" | "address[]" | "bytes" | "bytes[]";
+  refContracts: {
     publisherAddress: string;
     version: string;
     contractId: string;
@@ -140,7 +140,7 @@ interface Ref {
 
 interface ImplementationConstructorParam {
   defaultValue?: string;
-  ref?: Ref;
+  dynamicValue?: DynamicParams;
 }
 
 type ProcessRefDeploymentsOptions = {
@@ -164,11 +164,11 @@ async function processRefDeployments(
       return paramValue.defaultValue;
     }
 
-    if ("ref" in paramValue && paramValue.ref) {
-      const ref = paramValue.ref;
-      const contracts = ref.contracts;
+    if ("dynamicValue" in paramValue && paramValue.dynamicValue) {
+      const dynamicValue = paramValue.dynamicValue;
+      const contracts = dynamicValue.refContracts;
 
-      if (ref.refType === "address") {
+      if (dynamicValue.type === "address") {
         // Call the fetchAndDeployContract function with the ref data
         const addr = await deployPublishedContract({
           client,
@@ -182,7 +182,7 @@ async function processRefDeployments(
         return addr;
       }
 
-      if (ref.refType === "address[]") {
+      if (dynamicValue.type === "address[]") {
         const addressArray = [];
 
         for (const c of contracts) {

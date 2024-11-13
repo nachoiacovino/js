@@ -45,7 +45,7 @@ export const ImplementationParamsFieldset: React.FC<
       // Clear or set values accordingly when toggling between input types
       if (updated[index]) {
         form.setValue(
-          `implConstructorParams.${implParams[index]?.name || "*"}.ref.refType`,
+          `implConstructorParams.${implParams[index]?.name || "*"}.dynamicValue.type`,
           implParams[index]?.type,
         );
         form.setValue(
@@ -57,11 +57,11 @@ export const ImplementationParamsFieldset: React.FC<
         );
       } else {
         form.setValue(
-          `implConstructorParams.${implParams[index]?.name || "*"}.ref.refType`,
+          `implConstructorParams.${implParams[index]?.name || "*"}.dynamicValue.type`,
           "",
         );
         form.setValue(
-          `implConstructorParams.${implParams[index]?.name || "*"}.ref`,
+          `implConstructorParams.${implParams[index]?.name || "*"}.dynamicValue`,
           "",
           {
             shouldDirty: true,
@@ -116,9 +116,7 @@ export const ImplementationParamsFieldset: React.FC<
                         {!isCustomInputEnabled[idx] ? (
                           <>
                             <SolidityInput
-                              solidityType={
-                                param.type === "address" ? "string" : param.type
-                              }
+                              solidityType={param.type}
                               placeholder={
                                 isMobile ||
                                 paramTemplateValues?.[0]?.value ===
@@ -137,7 +135,10 @@ export const ImplementationParamsFieldset: React.FC<
                           <RefInputImplFieldset param={param} />
                         )}
 
-                        {param.type === "address" && (
+                        {(param.type === "address" ||
+                          param.type === "address[]" ||
+                          param.type === "bytes" ||
+                          param.type === "bytes[]") && (
                           <Checkbox
                             isChecked={isCustomInputEnabled[idx]}
                             onChange={() => handleToggleCustomInput(idx)}
