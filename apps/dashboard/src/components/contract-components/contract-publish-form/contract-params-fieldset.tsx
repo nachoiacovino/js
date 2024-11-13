@@ -25,7 +25,8 @@ import {
   Heading,
   Text,
 } from "tw-components";
-import { RefInputFieldset } from "./ref-input-fieldset";
+import { DecodedInputArrayFieldset } from "./decoded-bytes-input/decoded-input-array-fieldset";
+import { RefInputFieldset } from "./ref-contract-input/ref-input-fieldset";
 
 interface ContractParamsFieldsetProps {
   deployParams: readonly AbiParameter[];
@@ -175,8 +176,11 @@ export const ContractParamsFieldset: React.FC<ContractParamsFieldsetProps> = ({
                               )}
                             />
                           </>
-                        ) : (
+                        ) : param.type === "address" ||
+                          param.type === "address[]" ? (
                           <RefInputFieldset param={param} />
+                        ) : (
+                          <DecodedInputArrayFieldset param={param} />
                         )}
 
                         {(param.type === "address" ||

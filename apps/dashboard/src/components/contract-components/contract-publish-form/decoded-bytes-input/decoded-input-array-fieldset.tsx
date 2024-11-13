@@ -3,33 +3,33 @@ import type { AbiParameter } from "abitype";
 import { PlusIcon } from "lucide-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Button, Text } from "tw-components";
-import { RefContractImplInput } from "./ref-input-impl";
+import { DecodedInputSet } from "./decoded-input-set";
 
-interface RefInputImplFieldsetProps {
+interface DecodedInputArrayFieldsetProps {
   param: AbiParameter;
 }
 
-export const RefInputImplFieldset: React.FC<RefInputImplFieldsetProps> = ({
-  param,
-}) => {
+export const DecodedInputArrayFieldset: React.FC<
+  DecodedInputArrayFieldsetProps
+> = ({ param }) => {
   const form = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
-    name: `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts`,
+    name: `constructorParams.${param.name ? param.name : "*"}.dynamicValue.decodedBytes`,
     control: form.control,
   });
 
   return (
     <Flex gap={8} direction="column" as="fieldset">
       <Flex gap={2} direction="column">
-        <Text>Set ref contract for this param.</Text>
+        <Text>Set decoded values for this bytes param.</Text>
       </Flex>
       <Flex flexDir="column" gap={4}>
         {fields.map((item, index) => (
-          <RefContractImplInput
+          <DecodedInputSet
             key={item.id}
-            remove={remove}
-            index={index}
+            removeSet={remove}
+            setIndex={index}
             param={param}
           />
         ))}
@@ -40,7 +40,7 @@ export const RefInputImplFieldset: React.FC<RefInputImplFieldsetProps> = ({
             colorScheme="primary"
             borderRadius="md"
             leftIcon={<Icon as={PlusIcon} />}
-            isDisabled={param.type === "address" && fields.length >= 1}
+            isDisabled={param.type === "bytes" && fields.length >= 1}
             onClick={() =>
               append({
                 contractId: "",
@@ -49,7 +49,7 @@ export const RefInputImplFieldset: React.FC<RefInputImplFieldsetProps> = ({
               })
             }
           >
-            Add Ref
+            New param set
           </Button>
         </Box>
       </Flex>

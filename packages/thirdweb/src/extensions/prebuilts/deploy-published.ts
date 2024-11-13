@@ -137,6 +137,13 @@ interface DynamicParams {
     contractId: string;
     salt?: string;
   }[];
+  decodedBytes: Array<
+    Array<{
+      type: string;
+      defaultValue?: string;
+      dynamicValue?: DynamicParams;
+    }>
+  >;
 }
 
 interface ImplementationConstructorParam {
@@ -156,60 +163,162 @@ async function processRefDeployments(
 ): Promise<string> {
   const { client, account, chain, paramValue } = options;
 
-  if (typeof paramValue === "object") {
-    if (
-      "defaultValue" in paramValue &&
-      paramValue.defaultValue &&
-      paramValue.defaultValue.length > 0
-    ) {
-      return paramValue.defaultValue;
-    }
-
-    if ("dynamicValue" in paramValue && paramValue.dynamicValue) {
-      const dynamicValue = paramValue.dynamicValue;
-      const contracts = dynamicValue.refContracts;
-
-      if (dynamicValue.type === "address") {
-        const salt =
-          contracts[0]?.salt && contracts[0]?.salt.length > 0
-            ? contracts[0]?.salt
-            : undefined;
-        // Call the fetchAndDeployContract function with the ref data
-        const addr = await deployPublishedContract({
-          client,
-          chain,
-          account,
-          contractId: contracts[0]?.contractId as string,
-          publisher: contracts[0]?.publisherAddress,
-          version: contracts[0]?.version,
-          salt,
-        });
-
-        return addr;
+  try {
+    if (typeof paramValue === "object") {
+      if (
+        "defaultValue" in paramValue &&
+        paramValue.defaultValue &&
+        paramValue.defaultValue.length > 0
+      ) {
+        return paramValue.defaultValue;
       }
 
-      if (dynamicValue.type === "address[]") {
-        const addressArray = [];
+      if ("dynamicValue" in paramValue && paramValue.dynamicValue) {
+        const dynamicValue = paramValue.dynamicValue;
+        const contracts = dynamicValue.refContracts;
 
-        for (const c of contracts) {
-          const salt = c?.salt && c?.salt.length > 0 ? c?.salt : undefined;
+        if (dynamicValue.type === "address") {
+          const salt =
+            contracts[0]?.salt && contracts[0]?.salt.length > 0
+              ? contracts[0]?.salt
+              : undefined;
+          // Call the fetchAndDeployContract function with the ref data
+          const addr = await deployPublishedContract({
+            client,
+            chain,
+            account,
+            contractId: contracts[0]?.contractId as string,
+            publisher: contracts[0]?.publisherAddress,
+            version: contracts[0]?.version,
+            salt,
+          });
 
-          addressArray.push(
-            await deployPublishedContract({
-              client,
-              chain,
-              account,
-              contractId: c.contractId,
-              publisher: c.publisherAddress,
-              version: c.version,
-              salt,
-            }),
-          );
+          return addr;
         }
 
-        return JSON.stringify(addressArray);
+        if (dynamicValue.type === "address[]") {
+          const addressArray = [];
+
+          for (const c of contracts) {
+            const salt = c?.salt && c?.salt.length > 0 ? c?.salt : undefined;
+
+            addressArray.push(
+              await deployPublishedContract({
+                client,
+                chain,
+                account,
+                contractId: c.contractId,
+                publisher: c.publisherAddress,
+                version: c.version,
+                salt,
+              }),
+            );
+          }
+
+          return JSON.stringify(addressArray);
+        }
+
+        if (dynamicValue.type === "bytes") {
+          console.log("process bytes 1");
+          const decodedBytes = dynamicValue.decodedBytes[0];
+
+          if (decodedBytes) {
+            const types = [];
+            const values = [];
+            for (const v of decodedBytes) {
+              types.push(v.type);
+
+              if (v.defaultValue) {
+                values.push(v.defaultValue);
+              }
+
+              if (v.dynamicValue) {
+                values.push(
+                  await processRefDeployments({
+                    client,
+                    account,
+                    chain,
+                    paramValue: {
+                      ...v,
+                      dynamicValue: {
+                        ...v.dynamicValue,
+                        type: "address",
+                      },
+                    },
+                  }),
+                );
+              }
+            }
+
+            return encodeAbiParameters(
+              types.map((t) => {
+                return { name: "", type: t };
+              }),
+              values,
+            );
+          }
+        }
+
+        if (dynamicValue.type === "bytes[]") {
+          console.log("process bytes[] 1");
+          const bytesArray = [];
+          const decodedBytesArray = dynamicValue.decodedBytes;
+
+          for (const a of decodedBytesArray) {
+            const decodedBytes = a;
+
+            if (decodedBytes) {
+              const types = [];
+              const values = [];
+              for (const v of decodedBytes) {
+                types.push(v.type);
+
+                if (v.defaultValue) {
+                  values.push(v.defaultValue);
+                }
+
+                if (v.dynamicValue) {
+                  values.push(
+                    await processRefDeployments({
+                      client,
+                      account,
+                      chain,
+                      paramValue: {
+                        ...v,
+                        dynamicValue: {
+                          ...v.dynamicValue,
+                          type: "address",
+                        },
+                      },
+                    }),
+                  );
+                }
+              }
+
+              bytesArray.push(
+                encodeAbiParameters(
+                  types.map((t) => {
+                    return { name: "", type: t };
+                  }),
+                  values,
+                ),
+              );
+            }
+          }
+
+          return JSON.stringify(bytesArray);
+        }
       }
     }
+    // biome-ignore lint/suspicious/noExplicitAny: catch multiple errors
+  } catch (e: any) {
+    const err = "error" in e ? e.error?.message : e?.message;
+
+    if (err.toString().includes("Contract already deployed")) {
+      return paramValue as string;
+    }
+
+    throw e;
   }
 
   return paramValue as string;

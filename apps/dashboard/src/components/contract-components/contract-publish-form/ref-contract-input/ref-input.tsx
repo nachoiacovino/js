@@ -12,7 +12,7 @@ import type { AbiParameter } from "abitype";
 import { TrashIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { FormLabel } from "tw-components";
-import { useAllVersions, usePublishedContractsQuery } from "../hooks";
+import { useAllVersions, usePublishedContractsQuery } from "../../hooks";
 
 interface RefContractInputProps {
   param: AbiParameter;

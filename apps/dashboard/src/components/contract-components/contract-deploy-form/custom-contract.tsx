@@ -87,6 +87,7 @@ interface DynamicValue {
       publisherAddress: string;
       version: string;
       contractId: string;
+      salt?: string;
     }[];
   };
 }

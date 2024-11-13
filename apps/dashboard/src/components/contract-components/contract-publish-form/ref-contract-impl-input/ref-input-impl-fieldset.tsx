@@ -3,19 +3,19 @@ import type { AbiParameter } from "abitype";
 import { PlusIcon } from "lucide-react";
 import { useFieldArray, useFormContext } from "react-hook-form";
 import { Button, Text } from "tw-components";
-import { RefContractInput } from "./ref-input";
+import { RefContractImplInput } from "./ref-input-impl";
 
-interface RefInputFieldsetProps {
+interface RefInputImplFieldsetProps {
   param: AbiParameter;
 }
 
-export const RefInputFieldset: React.FC<RefInputFieldsetProps> = ({
+export const RefInputImplFieldset: React.FC<RefInputImplFieldsetProps> = ({
   param,
 }) => {
   const form = useFormContext();
 
   const { fields, append, remove } = useFieldArray({
-    name: `constructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts`,
+    name: `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts`,
     control: form.control,
   });
 
@@ -26,7 +26,7 @@ export const RefInputFieldset: React.FC<RefInputFieldsetProps> = ({
       </Flex>
       <Flex flexDir="column" gap={4}>
         {fields.map((item, index) => (
-          <RefContractInput
+          <RefContractImplInput
             key={item.id}
             remove={remove}
             index={index}
@@ -46,6 +46,7 @@ export const RefInputFieldset: React.FC<RefInputFieldsetProps> = ({
                 contractId: "",
                 version: "",
                 publisherAddress: "",
+                salt: "",
               })
             }
           >

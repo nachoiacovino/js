@@ -21,7 +21,7 @@ import {
   Heading,
   Text,
 } from "tw-components";
-import { RefInputImplFieldset } from "./ref-input-impl-fieldset";
+import { RefInputImplFieldset } from "./ref-contract-impl-input/ref-input-impl-fieldset";
 
 interface ImplementationParamsFieldsetProps {
   implParams: readonly AbiParameter[];

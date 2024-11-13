@@ -12,7 +12,7 @@ import type { AbiParameter } from "abitype";
 import { TrashIcon } from "lucide-react";
 import { useFormContext } from "react-hook-form";
 import { FormLabel } from "tw-components";
-import { useAllVersions, usePublishedContractsQuery } from "../hooks";
+import { useAllVersions, usePublishedContractsQuery } from "../../hooks";
 
 interface RefContractImplInputProps {
   param: AbiParameter;
@@ -121,6 +121,27 @@ export const RefContractImplInput: React.FC<RefContractImplInputProps> = ({
             </Select>
           </Skeleton>
         </FormControl>
+
+        <FormControl
+          as={Flex}
+          flexDir="column"
+          gap={1}
+          isInvalid={
+            !!form.getFieldState(
+              `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.salt`,
+              form.formState,
+            ).error
+          }
+        >
+          <FormLabel textTransform="capitalize">Salt</FormLabel>
+          <Input
+            placeholder="Salt (optional)"
+            {...form.register(
+              `implConstructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.salt`,
+            )}
+          />
+        </FormControl>
+
         <IconButton
           icon={<Icon as={TrashIcon} boxSize={5} />}
           aria-label="Remove row"
