@@ -167,17 +167,16 @@ type DynamicParams = {
     contractId: string;
     publisherAddress: string;
     version: string;
+    salt?: string;
   }>;
 
   // use for bytes
   decodedBytes?: Array<
-    Record<
-      string,
-      {
-        defaultValue?: string;
-        dynamicValue?: DynamicParams; // can have address type which may need ref
-      }
-    >
+    Array<{
+      type: string;
+      defaultValue?: string;
+      dynamicValue?: DynamicParams; // can have address type which may need ref
+    }>
   >;
 };
 

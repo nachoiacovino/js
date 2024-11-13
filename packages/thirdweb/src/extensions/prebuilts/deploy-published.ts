@@ -135,6 +135,7 @@ interface DynamicParams {
     publisherAddress: string;
     version: string;
     contractId: string;
+    salt?: string;
   }[];
 }
 
@@ -169,6 +170,10 @@ async function processRefDeployments(
       const contracts = dynamicValue.refContracts;
 
       if (dynamicValue.type === "address") {
+        const salt =
+          contracts[0]?.salt && contracts[0]?.salt.length > 0
+            ? contracts[0]?.salt
+            : undefined;
         // Call the fetchAndDeployContract function with the ref data
         const addr = await deployPublishedContract({
           client,
@@ -177,6 +182,7 @@ async function processRefDeployments(
           contractId: contracts[0]?.contractId as string,
           publisher: contracts[0]?.publisherAddress,
           version: contracts[0]?.version,
+          salt,
         });
 
         return addr;
@@ -186,6 +192,8 @@ async function processRefDeployments(
         const addressArray = [];
 
         for (const c of contracts) {
+          const salt = c?.salt && c?.salt.length > 0 ? c?.salt : undefined;
+
           addressArray.push(
             await deployPublishedContract({
               client,
@@ -194,6 +202,7 @@ async function processRefDeployments(
               contractId: c.contractId,
               publisher: c.publisherAddress,
               version: c.version,
+              salt,
             }),
           );
         }

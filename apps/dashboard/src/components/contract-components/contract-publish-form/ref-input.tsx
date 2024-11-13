@@ -121,6 +121,27 @@ export const RefContractInput: React.FC<RefContractInputProps> = ({
             </Select>
           </Skeleton>
         </FormControl>
+
+        <FormControl
+          as={Flex}
+          flexDir="column"
+          gap={1}
+          isInvalid={
+            !!form.getFieldState(
+              `constructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.salt`,
+              form.formState,
+            ).error
+          }
+        >
+          <FormLabel textTransform="capitalize">Salt</FormLabel>
+          <Input
+            placeholder="Salt (optional)"
+            {...form.register(
+              `constructorParams.${param.name ? param.name : "*"}.dynamicValue.refContracts.${index}.salt`,
+            )}
+          />
+        </FormControl>
+
         <IconButton
           icon={<Icon as={TrashIcon} boxSize={5} />}
           aria-label="Remove row"
