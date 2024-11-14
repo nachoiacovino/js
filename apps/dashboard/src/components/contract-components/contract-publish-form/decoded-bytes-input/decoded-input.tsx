@@ -1,5 +1,4 @@
 import {
-  Checkbox,
   Divider,
   Flex,
   FormControl,
@@ -12,6 +11,7 @@ import type { AbiParameter } from "abitype";
 import { TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { Checkbox } from "tw-components";
 import {} from "../../hooks";
 import { RefBytesInputFieldset } from "./ref-bytes-input-fieldset";
 
