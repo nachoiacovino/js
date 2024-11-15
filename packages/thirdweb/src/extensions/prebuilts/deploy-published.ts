@@ -182,7 +182,7 @@ async function processRefDeployments(
             contracts[0]?.salt && contracts[0]?.salt.length > 0
               ? contracts[0]?.salt
               : undefined;
-          // Call the fetchAndDeployContract function with the ref data
+
           const addr = await deployPublishedContract({
             client,
             chain,
@@ -219,7 +219,6 @@ async function processRefDeployments(
         }
 
         if (dynamicValue.type === "bytes") {
-          console.log("process bytes 1");
           const decodedBytes = dynamicValue.decodedBytes[0];
 
           if (decodedBytes) {
@@ -254,7 +253,6 @@ async function processRefDeployments(
         }
 
         if (dynamicValue.type === "bytes[]") {
-          console.log("process bytes[] 1");
           const bytesArray = [];
           const decodedBytesArray = dynamicValue.decodedBytes;
 

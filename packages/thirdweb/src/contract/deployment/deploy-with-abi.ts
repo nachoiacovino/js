@@ -152,7 +152,6 @@ export async function deployContract(
       }),
     );
     if (isDeployed) {
-      // throw new Error(`Contract already deployed at address: ${address}`);
       return address;
     }
     await sendAndConfirmTransaction({
