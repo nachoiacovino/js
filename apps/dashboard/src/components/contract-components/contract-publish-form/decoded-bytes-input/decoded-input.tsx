@@ -40,8 +40,8 @@ export const DecodedInput: React.FC<DecodedInputProps> = ({
       const updated = !isCustomAddress;
 
       const path = `constructorParams.${param.name ? param.name : "*"}.dynamicValue.decodedBytes.${setIndex}.${paramIndex}`;
-      if (!updated) {
-        form.setValue(`${path}.dynamicValue.type`, "address");
+      if (updated) {
+        form.setValue(`${path}.dynamicValue.type`, selectedType);
         form.resetField(`${path}.defaultValue`);
       } else {
         form.setValue(`${path}.dynamicValue.type`, "");

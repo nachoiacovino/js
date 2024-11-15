@@ -238,13 +238,7 @@ async function processRefDeployments(
                     client,
                     account,
                     chain,
-                    paramValue: {
-                      ...v,
-                      dynamicValue: {
-                        ...v.dynamicValue,
-                        type: "address",
-                      },
-                    },
+                    paramValue: v,
                   }),
                 );
               }
@@ -283,13 +277,7 @@ async function processRefDeployments(
                       client,
                       account,
                       chain,
-                      paramValue: {
-                        ...v,
-                        dynamicValue: {
-                          ...v.dynamicValue,
-                          type: "address",
-                        },
-                      },
+                      paramValue: v,
                     }),
                   );
                 }
