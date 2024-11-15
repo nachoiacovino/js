@@ -248,9 +248,11 @@ export function TransferableModuleUI(
                   )}
 
                   <div className="flex flex-col gap-3">
-                    <p className="text-muted-foreground text-sm">
-                      Accounts that may override the transfer restrictions
-                    </p>
+                    {formFields.fields.length > 0 && (
+                      <p className="text-muted-foreground text-sm">
+                        Accounts that may override the transfer restrictions
+                      </p>
+                    )}
 
                     {/* Addresses */}
                     {formFields.fields.map((fieldItem, index) => (
