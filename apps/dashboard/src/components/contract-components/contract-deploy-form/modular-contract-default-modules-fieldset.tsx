@@ -226,6 +226,6 @@ export function showPrimarySaleFiedset(paramNames: string[]) {
   return paramNames.length === 1 && paramNames.includes("primarySaleRecipient");
 }
 
-export function showSequentialTokenIdFieldset(paramNames: string[]) {
+function showSequentialTokenIdFieldset(paramNames: string[]) {
   return paramNames.length === 1 && paramNames.includes("startTokenId");
 }
