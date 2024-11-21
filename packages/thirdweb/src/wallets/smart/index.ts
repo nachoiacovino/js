@@ -158,6 +158,8 @@ export async function connectSmartWallet(
       );
     });
 
+  console.log("accountAddress", accountAddress);
+
   const accountContract = getContract({
     client,
     address: accountAddress,
