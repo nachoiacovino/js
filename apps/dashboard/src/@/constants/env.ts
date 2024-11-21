@@ -46,3 +46,5 @@ export function getAbsoluteUrlFromPath(path: string) {
   url.pathname = path;
   return url;
 }
+
+export const NEXT_PUBLIC_NEBULA_URL = process.env.NEXT_PUBLIC_NEBULA_URL;
