@@ -7,10 +7,10 @@ import {
   hashTypedData,
   maxUint96,
 } from "viem";
+import { verifyHash } from "../../auth/verify-hash.js";
 import type { Chain } from "../../chains/types.js";
 import { getCachedChain } from "../../chains/utils.js";
 import type { ThirdwebClient } from "../../client/client.js";
-import { ZERO_ADDRESS } from "../../constants/addresses.js";
 import { type ThirdwebContract, getContract } from "../../contract/contract.js";
 import { allowance } from "../../extensions/erc20/__generated__/IERC20/read/allowance.js";
 import { approve } from "../../extensions/erc20/write/approve.js";
@@ -32,11 +32,7 @@ import type {
   SendTransactionOption,
   Wallet,
 } from "../interfaces/wallet.js";
-import type {
-  CreateWalletArgs,
-  WalletConnectionOption,
-  WalletId,
-} from "../wallet-types.js";
+import type { WalletId } from "../wallet-types.js";
 import {
   broadcastZkTransaction,
   bundleUserOp,
@@ -91,8 +87,8 @@ const smartWalletToPersonalAccountMap = new WeakMap<Wallet<"smart">, Account>();
  */
 export async function connectSmartWallet(
   wallet: Wallet<"smart">,
-  connectionOptions: WalletConnectionOption<"smart">,
-  creationOptions: CreateWalletArgs<"smart">[1],
+  connectionOptions: SmartWalletConnectionOptions,
+  creationOptions: SmartWalletOptions,
 ): Promise<[Account, Chain]> {
   const { personalAccount, client, chain: connectChain } = connectionOptions;
 
@@ -116,7 +112,6 @@ export async function connectSmartWallet(
         entrypointAddress,
       };
     }
-    console.log("entrypointAddress", entrypointAddress);
   }
 
   const factoryAddress =
@@ -158,8 +153,6 @@ export async function connectSmartWallet(
         { cause: err },
       );
     });
-
-  console.log("accountAddress", accountAddress);
 
   const accountContract = getContract({
     client,
@@ -288,11 +281,9 @@ async function createSmartAccount(
         });
       }
 
-      console.log("contract deployed");
-
       const originalMsgHash = hashMessage(message);
       // check if the account contract supports EIP721 domain separator or modular based signing
-      const [is712Factory, isModularFactory] = await Promise.all([
+      const [is712Factory, validatorAddress] = await Promise.all([
         readContract({
           contract: accountContract,
           method:
@@ -302,18 +293,13 @@ async function createSmartAccount(
           .catch(() => false)
           .then(() => true),
         readContract({
-          contract: accountContract,
-          method: "function canInstall(address) public view returns (bool)",
-          params: [ZERO_ADDRESS],
-        })
-          .catch(() => false)
-          .then(() => true),
+          contract: options.factoryContract,
+          method: "function defaultValidator() returns (address)",
+        }).catch(() => undefined),
       ]);
 
-      console.log("factoryType", is712Factory, isModularFactory);
-
       let sig: `0x${string}`;
-      if (is712Factory || isModularFactory) {
+      if (is712Factory || validatorAddress) {
         const wrappedMessageHash = encodeAbiParameters(
           [{ type: "bytes32" }],
           [originalMsgHash],
@@ -321,7 +307,8 @@ async function createSmartAccount(
 
         sig = await options.personalAccount.signTypedData({
           domain: {
-            name: isModularFactory ? "DefaultValidator" : "Account",
+            // TODO (msa) - assumes our default validator here
+            name: validatorAddress ? "DefaultValidator" : "Account",
             version: "1",
             chainId: options.chain.id,
             verifyingContract: accountContract.address,
@@ -330,24 +317,19 @@ async function createSmartAccount(
           types: { AccountMessage: [{ name: "message", type: "bytes" }] },
           message: { message: wrappedMessageHash },
         });
-        if (isModularFactory) {
-          // add validator address
-          sig = encodePacked(
-            ["address", "bytes"],
-            ["0x6DF8ea6FF6Ca55f367CDA45510CA40dC78993DEC", sig],
-          );
+        if (validatorAddress) {
+          // TODO (msa) - validator might be different for the deployed account
+          sig = encodePacked(["address", "bytes"], [validatorAddress, sig]);
         }
       } else {
         sig = await options.personalAccount.signMessage({ message });
       }
 
-      console.log("sig", sig);
-
-      const isValid = await verifyContractWalletSignature({
+      const isValid = await verifyHash({
         address: accountContract.address,
         chain: accountContract.chain,
         client: accountContract.client,
-        message,
+        hash: originalMsgHash,
         signature: sig,
       }).catch((err) => {
         console.error("Error checking contract wallet signature", err);
@@ -667,7 +649,7 @@ async function _sendUserOp(args: {
   };
 }
 
-async function confirmContractDeployment(args: {
+export async function confirmContractDeployment(args: {
   accountContract: ThirdwebContract;
 }) {
   const { accountContract } = args;
